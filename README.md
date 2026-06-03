@@ -11,9 +11,6 @@
   <img src="https://github.com/user-attachments/assets/c5eb4cc1-0c3d-497d-9422-1614651a84ab" alt="thumbnail_IMG_0546" width="150">
   <img src="https://github.com/user-attachments/assets/1b490f07-f28e-4418-8d41-14f1492890c6" alt="bjorn_epd-removebg-preview" width="150">
 </p>
-
-Bjorn is a « Tamagotchi like » sophisticated, autonomous network scanning, vulnerability assessment, and offensive security tool designed to run on a Raspberry Pi equipped with a 2.13-inch e-Paper HAT. This document provides a detailed explanation of the project.
-
 #  Bjorn Alpha
 is a custom version of bjorn that add more features, so far, we are working on/have. BLE, NTFY Notifications, More Hacks.
 To set up the NTFY notifications. go over to ntfy.py and change the variable _topic = "" that says #PUT THE TOPIC RIGHT HERE
@@ -22,7 +19,10 @@ Also we have a bit bigger list of user password keywords in the dictionary, to a
 
 This is ran on the **PI ZERO 2 WH** it also should work on the pi zero. how ever i dont really know. The installation process is the same as all other BJORN installs. See below on how to do that.
 
-##--- line break idk ---
+### (If you dont know what bjorn is, use it for a bit before installing this your self)
+
+
+## --- line break idk ---
 
 ### 🔨 Installation
 
