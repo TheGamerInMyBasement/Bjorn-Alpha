@@ -88,18 +88,10 @@ No constant monitoring needed - just deploy and let Bjorn do what it does best: 
 🔧 Expand Bjorn's Arsenal!
 Bjorn is designed to be a community-driven weapon forge. Create and share your own attack modules!
 
-⚠️ **For educational and authorized testing purposes only** ⚠️
+#IF YOU WANT TO ADD TO THIS,
+This provides some help on how to add stuff, head over to my discord server for more help.
 
-## 🤝 Contributing
-
-The project welcomes contributions in:
-
-- New attack modules.
-- Bug fixes.
-- Documentation.
-- Feature improvements.
-
-For **detailed information** about **contributing** process go to [Contributing Docs](CONTRIBUTING.md), [Code Of Conduct](CODE_OF_CONDUCT.md) and [Development Guide](DEVELOPMENT.md).
+[Synra Development Team](https://discord.gg/JWjZ73wBxr)
 
 ## 📫 Contact
 
@@ -109,13 +101,8 @@ For **detailed information** about **contributing** process go to [Contributing 
   - Document reproduction steps.
   - Provide logs and context.
 
-- **Author**: __infinition__
-- **GitHub**: [infinition/Bjorn](https://github.com/infinition/Bjorn)
-
-## 🌠 Stargazers
-
-[![Star History Chart](https://api.star-history.com/svg?repos=infinition/bjorn&type=Date)](https://star-history.com/#infinition/bjorn&Date)
-
+- **Author**: TheGamerInMyBasement
+- **GitHub**: [TheGamerInMyBasement/Bjorn-Alpha](https://github.com/TheGamerInMyBasement/Bjorn-Alpha)
 ---
 
 ## 📜 License
