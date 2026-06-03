@@ -4,8 +4,9 @@
 ![Status](https://img.shields.io/badge/Status-Development-blue.svg)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-[![Reddit](https://img.shields.io/badge/Reddit-Bjorn__CyberViking-orange?style=for-the-badge&logo=reddit)](https://www.reddit.com/r/Bjorn_CyberViking)
-[![Discord](https://img.shields.io/badge/Discord-Join%20Us-7289DA?style=for-the-badge&logo=discord)](https://discord.com/invite/B3ZH9taVfT)
+[![Discord](https://img.shields.io/badge/Discord-Join%20Us-7289DA?style=for-the-badge&logo=discord)]([https://discord.com/invite/B3ZH9taVfT](https://discord.gg/sGmqVgk9Ya))
+
+
 
 <p align="center">
   <img src="https://github.com/user-attachments/assets/c5eb4cc1-0c3d-497d-9422-1614651a84ab" alt="thumbnail_IMG_0546" width="150">
@@ -104,6 +105,8 @@ This provides some help on how to add stuff, head over to my discord server for 
 - **Author**: TheGamerInMyBasement
 - **GitHub**: [TheGamerInMyBasement/Bjorn-Alpha](https://github.com/TheGamerInMyBasement/Bjorn-Alpha)
 ---
+
+### for the original project invite link : [discord](https://discord.com/invite/B3ZH9taVfT)
 
 ## 📜 License
 
