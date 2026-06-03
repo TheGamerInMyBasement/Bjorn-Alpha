@@ -14,7 +14,7 @@
 
 Bjorn is a « Tamagotchi like » sophisticated, autonomous network scanning, vulnerability assessment, and offensive security tool designed to run on a Raspberry Pi equipped with a 2.13-inch e-Paper HAT. This document provides a detailed explanation of the project.
 
-#$ Bjorn Alpha
+#  Bjorn Alpha
 is a custom version of bjorn that add more features, so far, we are working on/have. BLE, NTFY Notifications, More Hacks.
 To set up the NTFY notifications. go over to ntfy.py and change the variable _topic = "" that says #PUT THE TOPIC RIGHT HERE
 
