@@ -18,7 +18,7 @@ Bjorn is a « Tamagotchi like » sophisticated, autonomous network scanning, 
 is a custom version of bjorn that add more features, so far, we are working on/have. BLE, NTFY Notifications, More Hacks.
 To set up the NTFY notifications. go over to ntfy.py and change the variable _topic = "" that says #PUT THE TOPIC RIGHT HERE
 
-Also we have a bit bigger list of user password keywords in the dictionary, to add more. just add them to data/input/dictionary, then add the same in passwords.txt and users.txt then your done. We have a list of hte top 20 passwords, so the little brute forces bjorn can do are extended. 
+Also we have a bit bigger list of user password keywords in the dictionary, to add more. just add them to data/input/dictionary, then add the same in passwords.txt and users.txt then your done. We have a list of the top 6, so the little brute forces bjorn can do are extended. (Was the top 500, but that would take 3 days, top 20 would take 5 mins, top 6 takes only a brief period of time) 
 
 This is ran on the **PI ZERO 2 WH** it also should work on the pi zero. how ever i dont really know. The installation process is the same as all other BJORN installs. See below on how to do that.
 
