@@ -2,10 +2,6 @@
 
 We welcome contributions to Bjorn! To make sure the process goes smoothly, please follow these guidelines:
 
-## 📋 Code of Conduct
-
-Please note that all participants in our project are expected to follow our [Code of Conduct](#-code-of-conduct). Make sure to review it before contributing.
-
 ## 🛠 How to Contribute
 
 1. **Fork the repository**:

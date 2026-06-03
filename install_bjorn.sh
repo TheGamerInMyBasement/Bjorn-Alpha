@@ -228,6 +228,7 @@ install_dependencies() {
         "libi2c-dev"
         "libatlas-base-dev"
         "build-essential"
+        "requests"
     )
     
     # Install packages

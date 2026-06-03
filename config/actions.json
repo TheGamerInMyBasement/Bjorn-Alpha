@@ -129,29 +129,36 @@
         "b_module": "ble_scan",
         "b_class": "BLEScanner",
         "b_port": 0,
-        "b_status": "BLEScanner",
+        "b_status": "ble_scan",
         "b_parent": null
     },
     {
     "b_module": "ble_gatt",
     "b_class": "BLEGattScanner",
     "b_port": 0,
-    "b_status": "BLEGattScanner",
+    "b_status": "ble_gatt",
     "b_parent": null
     },
     {
         "b_module": "ble_advertise_parser",
         "b_class": "BLEAdvertiseParser",
         "b_port": 0,
-        "b_status": "BLEAdvertiseParser",
+        "b_status": "ble_advertise_parser",
         "b_parent": null
     },
     {
         "b_module": "ble_tracker",
         "b_class": "BLETracker",
         "b_port": 0,
-        "b_status": "BLETracker",
+        "b_status": "ble_tracker",
         "b_parent": null
+    },
+    {
+        "b_module": "zombify_ssh",
+        "b_class": "ZombifySSH",
+        "b_port": 22,
+        "b_status": "zombify_ssh",
+        "b_parent": "SSHBruteforce"
     }
 
 ]
