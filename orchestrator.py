@@ -27,19 +27,22 @@ from logger import Logger
 
 logger = Logger(name="orchestrator.py", level=logging.DEBUG)
 
+
 class Orchestrator:
     def __init__(self):
         """Initialise the orchestrator"""
         self.shared_data = shared_data
-        self.actions = []  # List of actions to be executed
-        self.standalone_actions = []  # List of standalone actions to be executed
-        self.failed_scans_count = 0  # Count the number of failed scans
+        self.actions = []
+        self.standalone_actions = []
+        self.failed_scans_count = 0
         self.network_scanner = None
-        self.last_vuln_scan_time = datetime.min  # Set the last vulnerability scan time to the minimum datetime value
-        self.load_actions()  # Load all actions from the actions file
-        actions_loaded = [action.__class__.__name__ for action in self.actions + self.standalone_actions]  # Get the names of the loaded actions
+        self.last_vuln_scan_time = datetime.min
+        self.load_actions()
+        actions_loaded = [action.__class__.__name__ for action in self.actions + self.standalone_actions]
         logger.info(f"Actions loaded: {actions_loaded}")
-        self.semaphore = threading.Semaphore(10)  # Limit the number of active threads to 10
+        logger.info(f"Standalone actions: {[a.__class__.__name__ for a in self.standalone_actions]}")
+        logger.info(f"Port-based actions: {[a.__class__.__name__ for a in self.actions]}")
+        self.semaphore = threading.Semaphore(10)
 
     def load_actions(self):
         """Load all actions from the actions file"""
@@ -72,40 +75,68 @@ class Orchestrator:
             b_class = action["b_class"]
             action_instance = getattr(module, b_class)(self.shared_data)
             action_instance.action_name = b_class
-            action_instance.port = action.get("b_port")
             action_instance.b_parent_action = action.get("b_parent")
+
+            # Cast port to int so "0" (string from JSON) and 0 (int) both route to standalone
+            raw_port = action.get("b_port")
+            try:
+                action_instance.port = int(raw_port)
+            except (TypeError, ValueError):
+                action_instance.port = None
+
             if action_instance.port == 0:
                 self.standalone_actions.append(action_instance)
+                logger.debug(f"Loaded standalone action: {b_class}")
             else:
                 self.actions.append(action_instance)
+                logger.debug(f"Loaded port-based action: {b_class} on port {action_instance.port}")
         except AttributeError as e:
             logger.error(f"Module {module_name} is missing required attributes: {e}")
+
+    def _parse_status_time(self, status_str, label):
+        """Parse a timestamp from a status string like 'success_20240101_120000'."""
+        try:
+            parts = status_str.split('_')
+            return datetime.strptime(parts[1] + "_" + parts[2], "%Y%m%d_%H%M%S")
+        except (ValueError, IndexError) as e:
+            logger.error(f"Error parsing {label} time from '{status_str}': {e}")
+            return None
+
+    def _check_retry_delay(self, status_str, action_name, delay_seconds, label):
+        """Returns True if the action should be skipped due to retry delay."""
+        last_time = self._parse_status_time(status_str, label)
+        if last_time is None:
+            return False
+        next_run = last_time + timedelta(seconds=delay_seconds)
+        if datetime.now() < next_run:
+            remaining = int((next_run - datetime.now()).total_seconds())
+            logger.warning(f"Skipping {action_name} due to {label} retry delay, retry in: {str(timedelta(seconds=remaining))}")
+            return True
+        return False
 
     def process_alive_ips(self, current_data):
         """Process all IPs with alive status set to 1"""
         any_action_executed = False
-        action_executed_status = None
 
         for action in self.actions:
             for row in current_data:
                 if row["Alive"] != '1':
                     continue
-                ip, ports = row["IPs"], row["Ports"].split(';')
+                ip = row["IPs"]
+                ports = row["Ports"].split(';')
                 action_key = action.action_name
 
                 if action.b_parent_action is None:
                     with self.semaphore:
                         if self.execute_action(action, ip, ports, row, action_key, current_data):
-                            action_executed_status = action_key
                             any_action_executed = True
-                            self.shared_data.bjornorch_status = action_executed_status
+                            self.shared_data.bjornorch_status = action_key
 
                             for child_action in self.actions:
                                 if child_action.b_parent_action == action_key:
                                     with self.semaphore:
                                         if self.execute_action(child_action, ip, ports, row, child_action.action_name, current_data):
-                                            action_executed_status = child_action.action_name
-                                            self.shared_data.bjornorch_status = action_executed_status
+                                            self.shared_data.bjornorch_status = child_action.action_name
                                             break
                             break
 
@@ -113,64 +144,44 @@ class Orchestrator:
             if child_action.b_parent_action:
                 action_key = child_action.action_name
                 for row in current_data:
-                    ip, ports = row["IPs"], row["Ports"].split(';')
+                    ip = row["IPs"]
+                    ports = row["Ports"].split(';')
                     with self.semaphore:
                         if self.execute_action(child_action, ip, ports, row, action_key, current_data):
-                            action_executed_status = child_action.action_name
                             any_action_executed = True
-                            self.shared_data.bjornorch_status = action_executed_status
+                            self.shared_data.bjornorch_status = action_key
                             break
 
         return any_action_executed
 
-
     def execute_action(self, action, ip, ports, row, action_key, current_data):
         """Execute an action on a target"""
-        if hasattr(action, 'port') and str(action.port) not in ports:
+        if hasattr(action, 'port') and action.port is not None and str(action.port) not in ports:
             return False
 
-        # Check parent action status
         if action.b_parent_action:
             parent_status = row.get(action.b_parent_action, "")
             if 'success' not in parent_status:
-                return False  # Skip child action if parent action has not succeeded
+                return False
 
-        # Check if the action is already successful and if retries are disabled for successful actions
-        if 'success' in row[action_key]:
+        status_str = row.get(action_key, "")
+
+        if 'success' in status_str:
             if not self.shared_data.retry_success_actions:
                 return False
-            else:
-                try:
-                    last_success_time = datetime.strptime(row[action_key].split('_')[1] + "_" + row[action_key].split('_')[2], "%Y%m%d_%H%M%S")
-                    if datetime.now() < last_success_time + timedelta(seconds=self.shared_data.success_retry_delay):
-                        retry_in_seconds = (last_success_time + timedelta(seconds=self.shared_data.success_retry_delay) - datetime.now()).seconds
-                        formatted_retry_in = str(timedelta(seconds=retry_in_seconds))
-                        logger.warning(f"Skipping action {action.action_name} for {ip}:{action.port} due to success retry delay, retry possible in: {formatted_retry_in}")
-                        return False  # Skip if the success retry delay has not passed
-                except ValueError as ve:
-                    logger.error(f"Error parsing last success time for {action.action_name}: {ve}")
+            if self._check_retry_delay(status_str, action.action_name, self.shared_data.success_retry_delay, 'success'):
+                return False
 
-        last_failed_time_str = row.get(action_key, "")
-        if 'failed' in last_failed_time_str:
-            try:
-                last_failed_time = datetime.strptime(last_failed_time_str.split('_')[1] + "_" + last_failed_time_str.split('_')[2], "%Y%m%d_%H%M%S")
-                if datetime.now() < last_failed_time + timedelta(seconds=self.shared_data.failed_retry_delay):
-                    retry_in_seconds = (last_failed_time + timedelta(seconds=self.shared_data.failed_retry_delay) - datetime.now()).seconds
-                    formatted_retry_in = str(timedelta(seconds=retry_in_seconds))
-                    logger.warning(f"Skipping action {action.action_name} for {ip}:{action.port} due to failed retry delay, retry possible in: {formatted_retry_in}")
-                    return False  # Skip if the retry delay has not passed
-            except ValueError as ve:
-                logger.error(f"Error parsing last failed time for {action.action_name}: {ve}")
+        if 'failed' in status_str:
+            if self._check_retry_delay(status_str, action.action_name, self.shared_data.failed_retry_delay, 'failed'):
+                return False
 
         try:
             logger.info(f"Executing action {action.action_name} for {ip}:{action.port}")
             self.shared_data.bjornstatustext2 = ip
             result = action.execute(ip, str(action.port), row, action_key)
             timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-            if result == 'success':
-                row[action_key] = f'success_{timestamp}'
-            else:
-                row[action_key] = f'failed_{timestamp}'
+            row[action_key] = f'{result}_{timestamp}'
             self.shared_data.write_data(current_data)
             return result == 'success'
         except Exception as e:
@@ -181,7 +192,7 @@ class Orchestrator:
             return False
 
     def execute_standalone_action(self, action, current_data):
-        """Execute a standalone action"""
+        """Execute a standalone action (no target IP required)"""
         row = next((r for r in current_data if r["MAC Address"] == "STANDALONE"), None)
         if not row:
             row = {
@@ -197,42 +208,27 @@ class Orchestrator:
         if action_key not in row:
             row[action_key] = ""
 
-        # Check if the action is already successful and if retries are disabled for successful actions
-        if 'success' in row[action_key]:
+        status_str = row.get(action_key, "")
+
+        if 'success' in status_str:
             if not self.shared_data.retry_success_actions:
                 return False
-            else:
-                try:
-                    last_success_time = datetime.strptime(row[action_key].split('_')[1] + "_" + row[action_key].split('_')[2], "%Y%m%d_%H%M%S")
-                    if datetime.now() < last_success_time + timedelta(seconds=self.shared_data.success_retry_delay):
-                        retry_in_seconds = (last_success_time + timedelta(seconds=self.shared_data.success_retry_delay) - datetime.now()).seconds
-                        formatted_retry_in = str(timedelta(seconds=retry_in_seconds))
-                        logger.warning(f"Skipping standalone action {action.action_name} due to success retry delay, retry possible in: {formatted_retry_in}")
-                        return False  # Skip if the success retry delay has not passed
-                except ValueError as ve:
-                    logger.error(f"Error parsing last success time for {action.action_name}: {ve}")
+            if self._check_retry_delay(status_str, action.action_name, self.shared_data.success_retry_delay, 'success'):
+                return False
 
-        last_failed_time_str = row.get(action_key, "")
-        if 'failed' in last_failed_time_str:
-            try:
-                last_failed_time = datetime.strptime(last_failed_time_str.split('_')[1] + "_" + last_failed_time_str.split('_')[2], "%Y%m%d_%H%M%S")
-                if datetime.now() < last_failed_time + timedelta(seconds=self.shared_data.failed_retry_delay):
-                    retry_in_seconds = (last_failed_time + timedelta(seconds=self.shared_data.failed_retry_delay) - datetime.now()).seconds
-                    formatted_retry_in = str(timedelta(seconds=retry_in_seconds))
-                    logger.warning(f"Skipping standalone action {action.action_name} due to failed retry delay, retry possible in: {formatted_retry_in}")
-                    return False  # Skip if the retry delay has not passed
-            except ValueError as ve:
-                logger.error(f"Error parsing last failed time for {action.action_name}: {ve}")
+        if 'failed' in status_str:
+            if self._check_retry_delay(status_str, action.action_name, self.shared_data.failed_retry_delay, 'failed'):
+                return False
 
         try:
             logger.info(f"Executing standalone action {action.action_name}")
+            self.shared_data.bjornorch_status = action.action_name
             result = action.execute()
             timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+            row[action_key] = f'{result}_{timestamp}'
             if result == 'success':
-                row[action_key] = f'success_{timestamp}'
                 logger.info(f"Standalone action {action.action_name} executed successfully")
             else:
-                row[action_key] = f'failed_{timestamp}'
                 logger.error(f"Standalone action {action.action_name} failed")
             self.shared_data.write_data(current_data)
             return result == 'success'
@@ -243,40 +239,86 @@ class Orchestrator:
             self.shared_data.write_data(current_data)
             return False
 
+    def run_standalone_actions(self, current_data):
+        """Run all standalone actions every cycle, regardless of alive targets."""
+        for action in self.standalone_actions:
+            with self.semaphore:
+                self.execute_standalone_action(action, current_data)
+
+    def run_vuln_scans(self, current_data):
+        """Run nmap vulnerability scans if enabled and interval has passed."""
+        if not self.shared_data.scan_vuln_running:
+            return
+        current_time = datetime.now()
+        if current_time < self.last_vuln_scan_time + timedelta(seconds=self.shared_data.scan_vuln_interval):
+            return
+        try:
+            logger.info("Starting vulnerability scans...")
+            for row in current_data:
+                if row["Alive"] != '1':
+                    continue
+                ip = row["IPs"]
+                scan_status = row.get("NmapVulnScanner", "")
+
+                if 'success' in scan_status:
+                    if not self.shared_data.retry_success_actions:
+                        logger.warning(f"Skipping vuln scan for {ip}, retry on success disabled.")
+                        continue
+                    if self._check_retry_delay(scan_status, "NmapVulnScanner", self.shared_data.success_retry_delay, 'success'):
+                        continue
+
+                if 'failed' in scan_status:
+                    if self._check_retry_delay(scan_status, "NmapVulnScanner", self.shared_data.failed_retry_delay, 'failed'):
+                        continue
+
+                with self.semaphore:
+                    result = self.nmap_vuln_scanner.execute(ip, row, "NmapVulnScanner")
+                    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+                    row["NmapVulnScanner"] = f'{result}_{timestamp}'
+                    self.shared_data.write_data(current_data)
+
+            self.last_vuln_scan_time = current_time
+        except Exception as e:
+            logger.error(f"Error during vulnerability scan: {e}")
+
     def run(self):
         """Run the orchestrator cycle to execute actions"""
-        #Run the scanner a first time to get the initial data
         self.shared_data.bjornorch_status = "NetworkScanner"
         self.shared_data.bjornstatustext2 = "First scan..."
         self.network_scanner.scan()
         self.shared_data.bjornstatustext2 = ""
+
         while not self.shared_data.orchestrator_should_exit:
             current_data = self.shared_data.read_data()
             any_action_executed = False
-            action_executed_status = None
             action_retry_pending = False
+
+            # Run standalone actions every cycle (BLE, logging, etc.)
+            self.run_standalone_actions(current_data)
+
+            # Process alive IPs for port-based actions
             any_action_executed = self.process_alive_ips(current_data)
 
+            # Second pass for port-based actions
             for action in self.actions:
                 for row in current_data:
                     if row["Alive"] != '1':
                         continue
-                    ip, ports = row["IPs"], row["Ports"].split(';')
+                    ip = row["IPs"]
+                    ports = row["Ports"].split(';')
                     action_key = action.action_name
 
                     if action.b_parent_action is None:
                         with self.semaphore:
                             if self.execute_action(action, ip, ports, row, action_key, current_data):
-                                action_executed_status = action_key
                                 any_action_executed = True
-                                self.shared_data.bjornorch_status = action_executed_status
+                                self.shared_data.bjornorch_status = action_key
 
                                 for child_action in self.actions:
                                     if child_action.b_parent_action == action_key:
                                         with self.semaphore:
                                             if self.execute_action(child_action, ip, ports, row, child_action.action_name, current_data):
-                                                action_executed_status = child_action.action_name
-                                                self.shared_data.bjornorch_status = action_executed_status
+                                                self.shared_data.bjornorch_status = child_action.action_name
                                                 break
                                 break
 
@@ -284,12 +326,12 @@ class Orchestrator:
                 if child_action.b_parent_action:
                     action_key = child_action.action_name
                     for row in current_data:
-                        ip, ports = row["IPs"], row["Ports"].split(';')
+                        ip = row["IPs"]
+                        ports = row["Ports"].split(';')
                         with self.semaphore:
                             if self.execute_action(child_action, ip, ports, row, action_key, current_data):
-                                action_executed_status = child_action.action_name
                                 any_action_executed = True
-                                self.shared_data.bjornorch_status = action_executed_status
+                                self.shared_data.bjornorch_status = action_key
                                 break
 
             self.shared_data.write_data(current_data)
@@ -298,76 +340,28 @@ class Orchestrator:
                 self.shared_data.bjornorch_status = "IDLE"
                 self.shared_data.bjornstatustext2 = ""
                 logger.info("No available targets. Running network scan...")
+
                 if self.network_scanner:
                     self.shared_data.bjornorch_status = "NetworkScanner"
                     self.network_scanner.scan()
-                     # Relire les données mises à jour après le scan
                     current_data = self.shared_data.read_data()
                     any_action_executed = self.process_alive_ips(current_data)
-                    if self.shared_data.scan_vuln_running:
-                        current_time = datetime.now()
-                        if current_time >= self.last_vuln_scan_time + timedelta(seconds=self.shared_data.scan_vuln_interval):
-                            try:
-                                logger.info("Starting vulnerability scans...")
-                                for row in current_data:
-                                    if row["Alive"] == '1':
-                                        ip = row["IPs"]
-                                        scan_status = row.get("NmapVulnScanner", "")
-
-                                        # Check success retry delay
-                                        if 'success' in scan_status:
-                                            last_success_time = datetime.strptime(scan_status.split('_')[1] + "_" + scan_status.split('_')[2], "%Y%m%d_%H%M%S")
-                                            if not self.shared_data.retry_success_actions:
-                                                logger.warning(f"Skipping vulnerability scan for {ip} because retry on success is disabled.")
-                                                continue  # Skip if retry on success is disabled
-                                            if datetime.now() < last_success_time + timedelta(seconds=self.shared_data.success_retry_delay):
-                                                retry_in_seconds = (last_success_time + timedelta(seconds=self.shared_data.success_retry_delay) - datetime.now()).seconds
-                                                formatted_retry_in = str(timedelta(seconds=retry_in_seconds))
-                                                logger.warning(f"Skipping vulnerability scan for {ip} due to success retry delay, retry possible in: {formatted_retry_in}")
-                                                # Skip if the retry delay has not passed
-                                                continue
-
-                                        # Check failed retry delay
-                                        if 'failed' in scan_status:
-                                            last_failed_time = datetime.strptime(scan_status.split('_')[1] + "_" + scan_status.split('_')[2], "%Y%m%d_%H%M%S")
-                                            if datetime.now() < last_failed_time + timedelta(seconds=self.shared_data.failed_retry_delay):
-                                                retry_in_seconds = (last_failed_time + timedelta(seconds=self.shared_data.failed_retry_delay) - datetime.now()).seconds
-                                                formatted_retry_in = str(timedelta(seconds=retry_in_seconds))
-                                                logger.warning(f"Skipping vulnerability scan for {ip} due to failed retry delay, retry possible in: {formatted_retry_in}")
-                                                continue
-
-                                        with self.semaphore:
-                                            result = self.nmap_vuln_scanner.execute(ip, row, "NmapVulnScanner")
-                                            timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-                                            if result == 'success':
-                                                row["NmapVulnScanner"] = f'success_{timestamp}'
-                                            else:
-                                                row["NmapVulnScanner"] = f'failed_{timestamp}'
-                                            self.shared_data.write_data(current_data)
-                                self.last_vuln_scan_time = current_time
-                            except Exception as e:
-                                logger.error(f"Error during vulnerability scan: {e}")
-
-
+                    self.run_vuln_scans(current_data)
                 else:
                     logger.warning("No network scanner available.")
+
                 self.failed_scans_count += 1
                 if self.failed_scans_count >= 1:
-                    for action in self.standalone_actions:
-                        with self.semaphore:
-                            if self.execute_standalone_action(action, current_data):
-                                self.failed_scans_count = 0
-                                break
                     idle_start_time = datetime.now()
                     idle_end_time = idle_start_time + timedelta(seconds=self.shared_data.scan_interval)
                     while datetime.now() < idle_end_time:
                         if self.shared_data.orchestrator_should_exit:
                             break
-                        remaining_time = (idle_end_time - datetime.now()).seconds
+                        remaining_time = int((idle_end_time - datetime.now()).total_seconds())
                         self.shared_data.bjornorch_status = "IDLE"
                         self.shared_data.bjornstatustext2 = ""
                         sys.stdout.write('\x1b[1A\x1b[2K')
-                        logger.warning(f"Scanner did not find any new targets. Next scan in: {remaining_time} seconds")
+                        logger.warning(f"No new targets found. Next scan in: {remaining_time}s")
                         time.sleep(1)
                     self.failed_scans_count = 0
                     continue
@@ -377,6 +371,7 @@ class Orchestrator:
 
             if action_retry_pending:
                 self.failed_scans_count = 0
+
 
 if __name__ == "__main__":
     orchestrator = Orchestrator()

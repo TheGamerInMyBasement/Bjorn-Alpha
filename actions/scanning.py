@@ -21,6 +21,8 @@ from shared import SharedData
 from logger import Logger
 import ipaddress
 import nmap
+from ntfy import send_ntfy
+
 
 logger = Logger(name="scanning.py", level=logging.DEBUG)
 
@@ -473,6 +475,8 @@ class NetworkScanner:
                     results_df.loc[0, 'Alive Hosts Count'] = self.alive_hosts_count
                     results_df.loc[0, 'All Known Hosts Count'] = self.all_known_hosts_count
                     results_df.to_csv(self.output_csv_path, index=False)
+                    message = f"Nmap Scan Complete. Total Open Ports: {self.total_open_ports}. Alive Hosts Count: {self.alive_hosts_count}. All Known Hosts Count: {self.all_known_hosts_count}"
+                    send_ntfy(message=message)
                 else:
                     self.logger.error(f"File {self.output_csv_path} does not exist.")
             except Exception as e:

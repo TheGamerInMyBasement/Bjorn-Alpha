@@ -1,3 +1,6 @@
 root
 admin
 bjorn
+password
+123456
+1234

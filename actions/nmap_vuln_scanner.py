@@ -12,6 +12,8 @@ from rich.console import Console
 from rich.progress import Progress, BarColumn, TextColumn
 from shared import SharedData
 from logger import Logger
+from ntfy import send_ntfy
+
 
 logger = Logger(name="nmap_vuln_scanner.py", level=logging.INFO)
 
@@ -97,6 +99,8 @@ class NmapVulnScanner:
         if scan_result is not None:
             self.scan_results.append((ip, row["Hostnames"], row["MAC Address"]))
             self.save_results(row["MAC Address"], ip, scan_result)
+            message = f"Nmap Vuln ran on ip {ip}"
+            send_ntfy(message=message)
             return 'success'
         else:
             return 'success' # considering failed as success as we just need to scan vulnerabilities once
@@ -136,6 +140,8 @@ class NmapVulnScanner:
             with open(result_file, 'w') as file:
                 file.write(scan_result)
             
+
+
             logger.info(f"Results saved to {result_file}")
         except Exception as e:
             logger.error(f"Error saving scan results for {ip}: {e}")

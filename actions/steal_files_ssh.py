@@ -10,6 +10,7 @@ from rich.console import Console
 from threading import Timer
 from shared import SharedData
 from logger import Logger
+from ntfy import send_ntfy
 
 # Configure the logger
 logger = Logger(name="steal_files_ssh.py", level=logging.DEBUG)
@@ -146,6 +147,8 @@ class StealFilesSSH:
                             success = True
                             countfiles = len(remote_files)
                             logger.success(f"Successfully stolen {countfiles} files from {ip}:{port} using {username}")
+                            message = f"Successfully stolen {countfiles} files from {ip}:{port} using {username} (SSH)"
+                            send_ntfy(message=message)
                         ssh.close()
                         if success:
                             timer.cancel()  # Cancel the timer if the operation is successful

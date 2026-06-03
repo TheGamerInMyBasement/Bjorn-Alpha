@@ -2,10 +2,10 @@
     "__title_Bjorn__": "Settings",
     "manual_mode": false,
     "websrv": true,
-    "web_increment ": false,
+    "web_increment ": true,
     "debug_mode": true,
-    "scan_vuln_running": false,
-    "retry_success_actions": false,
+    "scan_vuln_running": true,
+    "retry_success_actions": true,
     "retry_failed_actions": true,
     "blacklistcheck": true,
     "displaying_csv": true,
@@ -73,16 +73,8 @@
         10000
     ],
     "mac_scan_blacklist": [
-        "00:11:32:c4:71:9b",
-        "00:11:32:c4:71:9a"
     ],
     "ip_scan_blacklist": [
-        "192.168.1.1",
-        "192.168.1.12",
-        "192.168.1.38",
-        "192.168.1.53",
-        "192.168.1.40",
-        "192.168.1.29"
     ],
     "steal_file_names": [
         "ssh.csv",
@@ -103,5 +95,9 @@
     "timewait_telnet": 0,
     "timewait_ftp": 0,
     "timewait_sql": 0,
-    "timewait_rdp": 0
+    "timewait_rdp": 0,
+    "ntfy": {
+    "topic": "BjornPushUpdateStuff185839"
+}
+
 }

@@ -813,3 +813,41 @@ method=auto
 
 
 
+# ---------------------------------------------------------------------------
+# NTFY BACKGROUND SERVICE (silent, auto-loaded)
+# ---------------------------------------------------------------------------
+
+import json
+import requests
+
+# Optional debug — uncomment if you want to confirm loading
+# print("NTFY SERVICE LOADED")
+
+CONFIG_PATH = "/home/bjorn/Bjorn/shared_config.json"
+
+# Load config once when utils.py is imported
+try:
+    with open(CONFIG_PATH, "r") as f:
+        _config = json.load(f)
+        _topic = _config.get("ntfy", {}).get("topic", "BjornDefaultTopic")
+except Exception:
+    _topic = "BjornDefaultTopic"
+
+_NTFY_URL = f"https://ntfy.sh/{_topic}"
+
+def send_ntfy(message=None):
+    """
+    Sends a silent ntfy notification.
+    Usage:
+        send_ntfy("hello")
+        send_ntfy(message="hello")
+    """
+    print("SEND_NTFY CALLED:", message)
+    if not message:
+        return
+
+    try:
+        requests.post(_NTFY_URL, data=message.encode("utf-8"))
+    except Exception:
+        # Silent fail — never interrupt Bjorn
+        pass

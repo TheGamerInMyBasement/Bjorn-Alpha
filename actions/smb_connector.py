@@ -13,6 +13,7 @@ from smb.SMBConnection import SMBConnection
 from queue import Queue
 from shared import SharedData
 from logger import Logger
+from ntfy import send_ntfy
 
 # Configure the logger
 logger = Logger(name="smb_connector.py", level=logging.DEBUG)
@@ -159,6 +160,8 @@ class SMBConnector:
                         if share not in IGNORED_SHARES:
                             self.results.append([mac_address, adresse_ip, hostname, share, user, password, port])
                             logger.success(f"Found credentials for IP: {adresse_ip} | User: {user} | Share: {share}")
+                            message = f"(SMB) Found credentials for IP: {adresse_ip} | User: {user} | Share: {share} using smbclient -L"
+                            send_ntfy(message=message)
                     self.save_results()
                     self.removeduplicates()
                     success_flag[0] = True
@@ -217,6 +220,8 @@ class SMBConnector:
                                 if share not in IGNORED_SHARES:
                                     self.results.append([mac_address, adresse_ip, hostname, share, user, password, port])
                                     logger.success(f"(SMB) Found credentials for IP: {adresse_ip} | User: {user} | Share: {share} using smbclient -L")
+                                    message = f"(SMB) Found credentials for IP: {adresse_ip} | User: {user} | Share: {share} using smbclient -L"
+                                    send_ntfy(message=message)
                                     self.save_results()
                                     self.removeduplicates()
                                     success_flag[0] = True

