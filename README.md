@@ -88,7 +88,7 @@ No constant monitoring needed - just deploy and let Bjorn do what it does best: 
 🔧 Expand Bjorn's Arsenal!
 Bjorn is designed to be a community-driven weapon forge. Create and share your own attack modules!
 
-#IF YOU WANT TO ADD TO THIS,
+# IF YOU WANT TO ADD TO THIS,
 This provides some help on how to add stuff, head over to my discord server for more help.
 
 [Synra Development Team](https://discord.gg/JWjZ73wBxr)
@@ -107,4 +107,4 @@ This provides some help on how to add stuff, head over to my discord server for 
 
 ## 📜 License
 
-2024 - Bjorn is distributed under the MIT License. For more details, please refer to the [LICENSE](LICENSE) file included in this repository.
+2026 - Bjorn is distributed under the MIT License. For more details, please refer to the [LICENSE](LICENSE) file included in this repository.
