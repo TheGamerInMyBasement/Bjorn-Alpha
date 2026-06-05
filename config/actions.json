@@ -159,6 +159,13 @@
         "b_port": 22,
         "b_status": "zombify_ssh",
         "b_parent": "SSHBruteforce"
-    }
+    },
+    {
+    "b_module": "roku_ecp_scanner",
+    "b_class": "RokuECPScanner",
+    "b_port": 8060,
+    "b_status": "roku_ecp_scanner",
+    "b_parent": null
+}
 
 ]

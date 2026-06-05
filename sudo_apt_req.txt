@@ -1,0 +1,25 @@
+sudo apt install bluetooth bluez bluez-tools
+sudo apt install sshpass
+sudo bluetoothctl
+sudo apt install -y vsftpd
+sudo apt install python3-pip
+sudo apt install python3-pil
+sudo apt install python3-requests
+sudo apt install python3-netifaces
+sudo apt install python3-numpy
+sudo apt install python3-paramiko
+sudo apt install python3-pymysql
+sudo apt install python3-sqlalchemy
+
+sudo apt install bluetooth bluez bluez-tools
+sudo apt install sshpass
+sudo apt install -y vsftpd
+
+sudo apt install nmap
+sudo apt install smbclient
+sudo apt install wireless-tools
+sudo apt install iw
+sudo apt install net-tools
+sudo apt install arp-scan
+pip3 install getmac --break-system-packages
+pip3 install python-nmap --break-system-packages

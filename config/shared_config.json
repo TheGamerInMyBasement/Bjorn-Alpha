@@ -22,10 +22,10 @@
     "livestatus_delay": 8,
     "image_display_delaymin": 2,
     "image_display_delaymax": 8,
-    "scan_interval": 180,
-    "scan_vuln_interval": 900,
-    "failed_retry_delay": 600,
-    "success_retry_delay": 900,
+    "scan_interval": 60,
+    "scan_vuln_interval": 180,
+    "failed_retry_delay": 30,
+    "success_retry_delay": 30,
     "ref_width": 122,
     "ref_height": 250,
     "epd_type": "epd2in13_V4",
@@ -67,6 +67,7 @@
         5001,
         5432,
         5900,
+        8060,
         8080,
         8443,
         9090,
@@ -75,6 +76,7 @@
     "mac_scan_blacklist": [
     ],
     "ip_scan_blacklist": [
+        "192.168.68.52"
     ],
     "steal_file_names": [
         "ssh.csv",
@@ -88,7 +90,7 @@
     "__title_network__": "Network",
     "nmap_scan_aggressivity": "-T2",
     "portstart": 1,
-    "portend": 2,
+    "portend": 8080,
     "__title_timewaits__": "Time Wait Settings",
     "timewait_smb": 0,
     "timewait_ssh": 0,

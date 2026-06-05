@@ -1,0 +1,45 @@
+curl.exe -d \"\" "http://192.168.1.38:8060/keypress/Power"
+Start-Sleep -Milliseconds 2000
+
+curl.exe -d \"\" "http://192.168.1.38:8060/keypress/home"
+Start-Sleep -Milliseconds 200
+
+curl.exe -d \"\" "http://192.168.1.38:8060/keypress/up"
+Start-Sleep -Milliseconds 200
+
+curl.exe -d \"\" "http://192.168.1.38:8060/keypress/right"
+Start-Sleep -Milliseconds 200
+
+curl.exe -d \"\" "http://192.168.1.38:8060/keypress/up"
+Start-Sleep -Milliseconds 200
+
+curl.exe -d \"\" "http://192.168.1.38:8060/keypress/right"
+Start-Sleep -Milliseconds 200
+
+curl.exe -d \"\" "http://192.168.1.38:8060/keypress/down"
+Start-Sleep -Milliseconds 200
+
+curl.exe -d \"\" "http://192.168.1.38:8060/keypress/down"
+Start-Sleep -Milliseconds 200
+
+curl.exe -d \"\" "http://192.168.1.38:8060/keypress/down"
+Start-Sleep -Milliseconds 200
+
+curl.exe -d \"\" "http://192.168.1.38:8060/keypress/right"
+Start-Sleep -Milliseconds 200
+
+curl.exe -d \"\" "http://192.168.1.38:8060/keypress/down"
+Start-Sleep -Milliseconds 200
+
+curl.exe -d \"\" "http://192.168.1.38:8060/keypress/down"
+Start-Sleep -Milliseconds 200
+
+curl.exe -d \"\" "http://192.168.1.38:8060/keypress/down"
+Start-Sleep -Milliseconds 200
+
+curl.exe -d \"\" "http://192.168.1.38:8060/keypress/right"
+Start-Sleep -Milliseconds 200
+
+curl.exe -d \"\" "http://192.168.1.38:8060/keypress/select"
+Start-Sleep -Milliseconds 200
+curl.exe -d \"\" "http://192.168.1.38:8060/keypress/Power"

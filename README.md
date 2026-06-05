@@ -4,26 +4,25 @@
 ![Status](https://img.shields.io/badge/Status-Development-blue.svg)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-[![Discord](https://img.shields.io/badge/Discord-Join%20Us-7289DA?style=for-the-badge&logo=discord)]([https://discord.com/invite/B3ZH9taVfT](https://discord.gg/sGmqVgk9Ya))
-
-
+[![Reddit](https://img.shields.io/badge/Reddit-Bjorn__CyberViking-orange?style=for-the-badge&logo=reddit)](https://www.reddit.com/r/Bjorn_CyberViking)
+[![Discord](https://img.shields.io/badge/Discord-Join%20Us-7289DA?style=for-the-badge&logo=discord)](https://discord.com/invite/B3ZH9taVfT)
 
 <p align="center">
   <img src="https://github.com/user-attachments/assets/c5eb4cc1-0c3d-497d-9422-1614651a84ab" alt="thumbnail_IMG_0546" width="150">
   <img src="https://github.com/user-attachments/assets/1b490f07-f28e-4418-8d41-14f1492890c6" alt="bjorn_epd-removebg-preview" width="150">
 </p>
-## Bjorn Alpha
+
+Bjorn is a « Tamagotchi like » sophisticated, autonomous network scanning, vulnerability assessment, and offensive security tool designed to run on a Raspberry Pi equipped with a 2.13-inch e-Paper HAT. This document provides a detailed explanation of the project.
+
+#  Bjorn Alpha
 is a custom version of bjorn that add more features, so far, we are working on/have. BLE, NTFY Notifications, More Hacks.
 To set up the NTFY notifications. go over to ntfy.py and change the variable _topic = "" that says #PUT THE TOPIC RIGHT HERE
 
-Also we have a bit bigger list of user password keywords in the dictionary, to add more. just add them to data/input/dictionary, then add the same in passwords.txt and users.txt then your done. We have a list of the top 6, so the little brute forces bjorn can do are extended. (Was the top 500, but that would take 3 days, top 20 would take 5 mins, top 6 takes only a brief period of time) 
+Also we have a bit bigger list of user password keywords in the dictionary, to add more. just add them to data/input/dictionary, then add the same in passwords.txt and users.txt then your done. We have a list of hte top 20 passwords, so the little brute forces bjorn can do are extended. 
 
 This is ran on the **PI ZERO 2 WH** it also should work on the pi zero. how ever i dont really know. The installation process is the same as all other BJORN installs. See below on how to do that.
 
-### (If you dont know what bjorn is, use it for a bit before installing this your self)
-
-
-## --- line break idk ---
+##--- line break idk ---
 
 ### 🔨 Installation
 
@@ -105,8 +104,6 @@ This provides some help on how to add stuff, head over to my discord server for 
 - **Author**: TheGamerInMyBasement
 - **GitHub**: [TheGamerInMyBasement/Bjorn-Alpha](https://github.com/TheGamerInMyBasement/Bjorn-Alpha)
 ---
-
-### for the original project invite link : [discord](https://discord.com/invite/B3ZH9taVfT)
 
 ## 📜 License
 
