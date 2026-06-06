@@ -6,7 +6,7 @@ import logging
 logger = logging.getLogger("discord_webhook")
 
 # Put your webhook URL here ONCE
-DISCORD_WEBHOOK_URL = "https://discord.com/api/webhooks/1511752087762108657/sGpxuhwVaiBXDdUKKQxS07RVp2Lwjw9ACf2TvTZ5U3MXH-xI2oJ0FOECRKVmmAtcWrQQ"
+DISCORD_WEBHOOK_URL = ""
 
 def send_ntfy(message: str):
     """
