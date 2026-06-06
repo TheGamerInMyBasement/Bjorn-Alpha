@@ -4,8 +4,7 @@
 ![Status](https://img.shields.io/badge/Status-Development-blue.svg)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-[![Reddit](https://img.shields.io/badge/Reddit-Bjorn__CyberViking-orange?style=for-the-badge&logo=reddit)](https://www.reddit.com/r/Bjorn_CyberViking)
-[![Discord](https://img.shields.io/badge/Discord-Join%20Us-7289DA?style=for-the-badge&logo=discord)](https://discord.com/invite/B3ZH9taVfT)
+[![Discord](https://img.shields.io/badge/Discord-Join%20Us-7289DA?style=for-the-badge&logo=discord)](https://discord.com/invite/JWjZ73wBxr)
 
 <p align="center">
   <img src="https://github.com/user-attachments/assets/c5eb4cc1-0c3d-497d-9422-1614651a84ab" alt="thumbnail_IMG_0546" width="150">
@@ -14,15 +13,23 @@
 
 Bjorn is a « Tamagotchi like » sophisticated, autonomous network scanning, vulnerability assessment, and offensive security tool designed to run on a Raspberry Pi equipped with a 2.13-inch e-Paper HAT. This document provides a detailed explanation of the project.
 
-#  Bjorn Alpha
+## shout out to the original creator
+
+# Bjorn Alpha
 is a custom version of bjorn that add more features, so far, we are working on/have. BLE, NTFY Notifications, More Hacks.
 To set up the NTFY notifications. go over to ntfy.py and change the variable _topic = "" that says #PUT THE TOPIC RIGHT HERE
 
 Also we have a bit bigger list of user password keywords in the dictionary, to add more. just add them to data/input/dictionary, then add the same in passwords.txt and users.txt then your done. We have a list of hte top 20 passwords, so the little brute forces bjorn can do are extended. 
 
 This is ran on the **PI ZERO 2 WH** it also should work on the pi zero. how ever i dont really know. The installation process is the same as all other BJORN installs. See below on how to do that.
-
-##--- line break idk ---
+# CUSTOM FEATURES
+- Zombify SSH will add a custom hack on a cracked ssh, like a unsecure ftp, you can add more payloads in the payloads dir.
+- Roku ECP detection
+- new AI system to make it abit better
+- more ssh cracking credentials
+- Bluetooth hacking (wip) and recon
+- sending stuff to DC web hooks
+## --- line break idk ---
 
 ### 🔨 Installation
 
@@ -30,7 +37,7 @@ The fastest way to install Bjorn is using the automatic installation script :
 
 ```bash
 # Download and run the installer
-wget https://raw.githubusercontent.com/infinition/Bjorn/refs/heads/main/install_bjorn.sh
+wget https://raw.githubusercontent.com/TheGamerInMyBasement/Bjorn-Omega/refs/heads/main/install_bjorn.sh
 sudo chmod +x install_bjorn.sh && sudo ./install_bjorn.sh
 # Choose the choice 1 for automatic installation. It may take a while as a lot of packages and modules will be installed. You must reboot at the end.
 ```
@@ -102,7 +109,7 @@ This provides some help on how to add stuff, head over to my discord server for 
   - Provide logs and context.
 
 - **Author**: TheGamerInMyBasement
-- **GitHub**: [TheGamerInMyBasement/Bjorn-Alpha](https://github.com/TheGamerInMyBasement/Bjorn-Alpha)
+- **GitHub**: [TheGamerInMyBasement/Bjorn-Omega](https://github.com/TheGamerInMyBasement/Bjorn-Omega)
 ---
 
 ## 📜 License
